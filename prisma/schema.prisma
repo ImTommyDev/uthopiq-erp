@@ -7,9 +7,460 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Project {
-  id        String   @id @default(cuid())
-  name      String
-  status    String   @default("pending")
-  createdAt DateTime @default(now())
+model Rol {
+  id             String       @id @default(uuid()) @db.Uuid
+  nombre         String       @unique @db.VarChar(50)
+  descripcion    String?
+  creado_en      DateTime     @default(now())
+  actualizado_en DateTime     @default(now())
+  rolPermisos    RolPermiso[]
+  usuarios       Usuario[]
+
+  @@map("roles")
+}
+
+model Permiso {
+  id          String       @id @default(uuid()) @db.Uuid
+  clave       String       @unique @db.VarChar(100)
+  nombre      String       @db.VarChar(100)
+  descripcion String?
+  rolPermisos RolPermiso[]
+
+  @@map("permisos")
+}
+
+model RolPermiso {
+  id_rol         String  @db.Uuid
+  id_permiso     String  @db.Uuid
+  puede_ver      Boolean @default(true)
+  puede_crear    Boolean @default(false)
+  puede_editar   Boolean @default(false)
+  puede_eliminar Boolean @default(false)
+  permiso        Permiso @relation(fields: [id_permiso], references: [id], onDelete: Cascade)
+  rol            Rol     @relation(fields: [id_rol], references: [id], onDelete: Cascade)
+
+  @@id([id_rol, id_permiso])
+  @@map("rol_permisos")
+}
+
+model Usuario {
+  id               String            @id @default(uuid()) @db.Uuid
+  id_clerk         String?           @unique @db.VarChar(255)
+  email            String            @unique @db.VarChar(255)
+  nombre           String            @db.VarChar(100)
+  apellidos        String?           @db.VarChar(150)
+  telefono         String?           @db.VarChar(50)
+  avatar_url       String?
+  activo           Boolean           @default(true)
+  id_rol           String            @db.Uuid
+  notas            String?
+  creado_en        DateTime          @default(now())
+  actualizado_en   DateTime          @default(now())
+  creado_por       String?           @db.Uuid
+  actualizado_por  String?           @db.Uuid
+  consumoBonos     ConsumoBono[]
+  proyectoUsuarios ProyectoUsuario[]
+  tareas           Tarea[]
+  rol              Rol               @relation(fields: [id_rol], references: [id])
+
+  @@map("usuarios")
+}
+
+model TipoCliente {
+  id          String    @id @default(uuid()) @db.Uuid
+  nombre      String    @unique @db.VarChar(100)
+  descripcion String?
+  clientes    Cliente[]
+
+  @@map("tipos_cliente")
+}
+
+model Cliente {
+  id                  String               @id @default(uuid()) @db.Uuid
+  nombre              String               @db.VarChar(255)
+  id_tipo_cliente     String?              @db.Uuid
+  cif                 String?              @db.VarChar(50)
+  email               String?              @db.VarChar(255)
+  telefono            String               @db.VarChar(50)
+  sitio_web           String?              @db.VarChar(255)
+  direccion           String?
+  ciudad              String?              @db.VarChar(100)
+  provincia           String?              @db.VarChar(100)
+  pais                String?              @db.VarChar(100)
+  codigo_postal       String?              @db.VarChar(20)
+  logo_url            String?
+  notas               String?
+  creado_en           DateTime             @default(now())
+  actualizado_en      DateTime             @default(now())
+  creado_por          String?              @db.Uuid
+  actualizado_por     String?              @db.Uuid
+  bonoClientes        BonoCliente[]
+  tipoCliente         TipoCliente?         @relation(fields: [id_tipo_cliente], references: [id])
+  contactoClientes    ContactoCliente[]
+  facturas            Factura[]
+  mensualidadClientes MensualidadCliente[]
+  presupuestos        Presupuesto[]
+  proyectos           Proyecto[]
+
+  @@map("clientes")
+}
+
+model ContactoCliente {
+  id              String   @id @default(uuid()) @db.Uuid
+  id_cliente      String   @db.Uuid
+  nombre          String   @db.VarChar(100)
+  apellidos       String?  @db.VarChar(150)
+  email           String?  @db.VarChar(255)
+  telefono        String?  @db.VarChar(50)
+  puesto          String?  @db.VarChar(100)
+  notas           String?
+  creado_en       DateTime @default(now())
+  actualizado_en  DateTime @default(now())
+  creado_por      String?  @db.Uuid
+  actualizado_por String?  @db.Uuid
+  cliente         Cliente  @relation(fields: [id_cliente], references: [id], onDelete: Cascade)
+
+  @@map("contactos_cliente")
+}
+
+model TipoProyecto {
+  id          String     @id @default(uuid()) @db.Uuid
+  codigo      String     @unique @db.VarChar(50)
+  nombre      String     @db.VarChar(100)
+  descripcion String?
+  proyectos   Proyecto[]
+
+  @@map("tipos_proyecto")
+}
+
+model EstadoProyecto {
+  id          String     @id @default(uuid()) @db.Uuid
+  codigo      String     @unique @db.VarChar(50)
+  nombre      String     @db.VarChar(100)
+  descripcion String?
+  proyectos   Proyecto[]
+
+  @@map("estados_proyecto")
+}
+
+model Proyecto {
+  id                   String               @id @default(uuid()) @db.Uuid
+  id_cliente           String               @db.Uuid
+  nombre               String               @db.VarChar(255)
+  descripcion          String?
+  id_tipo_proyecto     String               @db.Uuid
+  id_estado_proyecto   String               @db.Uuid
+  fecha_inicio         DateTime?            @db.Date
+  fecha_fin            DateTime?            @db.Date
+  presupuesto_estimado Decimal?             @db.Decimal(12, 2)
+  creado_en            DateTime             @default(now())
+  actualizado_en       DateTime             @default(now())
+  id_creado_por        String               @db.Uuid
+  actualizado_por      String?              @db.Uuid
+  bonoClientes         BonoCliente[]
+  consumoBonos         ConsumoBono[]
+  facturaLineas        FacturaLinea[]
+  facturas             Factura[]
+  gastos               Gasto[]
+  mensualidadClientes  MensualidadCliente[]
+  presupuestoLineas    PresupuestoLinea[]
+  presupuestos         Presupuesto[]
+  proyectoUsuarios     ProyectoUsuario[]
+  cliente              Cliente              @relation(fields: [id_cliente], references: [id])
+  estadoProyecto       EstadoProyecto       @relation(fields: [id_estado_proyecto], references: [id])
+  tipoProyecto         TipoProyecto         @relation(fields: [id_tipo_proyecto], references: [id])
+  tareas               Tarea[]
+
+  @@map("proyectos")
+}
+
+model ProyectoUsuario {
+  id_proyecto     String   @db.Uuid
+  id_usuario      String   @db.Uuid
+  rol_en_proyecto String?  @db.VarChar(100)
+  es_responsable  Boolean  @default(false)
+  proyecto        Proyecto @relation(fields: [id_proyecto], references: [id], onDelete: Cascade)
+  usuario         Usuario  @relation(fields: [id_usuario], references: [id], onDelete: Cascade)
+
+  @@id([id_proyecto, id_usuario])
+  @@map("proyecto_usuarios")
+}
+
+model Tarea {
+  id                String        @id @default(uuid()) @db.Uuid
+  id_proyecto       String        @db.Uuid
+  titulo            String        @db.VarChar(255)
+  descripcion       String?
+  estado            String        @default("pendiente") @db.VarChar(50)
+  prioridad         String        @default("media") @db.VarChar(50)
+  id_asignado_a     String?       @db.Uuid
+  id_creado_por     String        @db.Uuid
+  fecha_vencimiento DateTime?     @db.Date
+  completado_en     DateTime?
+  creado_en         DateTime      @default(now())
+  actualizado_en    DateTime      @default(now())
+  consumoBonos      ConsumoBono[]
+  asignado_a        Usuario?      @relation(fields: [id_asignado_a], references: [id])
+  proyecto          Proyecto      @relation(fields: [id_proyecto], references: [id], onDelete: Cascade)
+
+  @@map("tareas")
+}
+
+model Proveedor {
+  id             String   @id @default(uuid()) @db.Uuid
+  nombre         String   @db.VarChar(255)
+  cif            String?  @db.VarChar(50)
+  email          String?  @db.VarChar(255)
+  telefono       String?  @db.VarChar(50)
+  sitio_web      String?  @db.VarChar(255)
+  notas          String?
+  creado_en      DateTime @default(now())
+  actualizado_en DateTime @default(now())
+  gastos         Gasto[]
+
+  @@map("proveedores")
+}
+
+model Gasto {
+  id             String     @id @default(uuid()) @db.Uuid
+  id_proyecto    String?    @db.Uuid
+  id_proveedor   String?    @db.Uuid
+  categoria      String     @db.VarChar(100)
+  descripcion    String?
+  importe        Decimal    @db.Decimal(12, 2)
+  fecha_gasto    DateTime   @db.Date
+  recibo_url     String?
+  facturable     Boolean    @default(false)
+  id_creado_por  String     @db.Uuid
+  creado_en      DateTime   @default(now())
+  actualizado_en DateTime   @default(now())
+  proveedor      Proveedor? @relation(fields: [id_proveedor], references: [id])
+  proyecto       Proyecto?  @relation(fields: [id_proyecto], references: [id])
+
+  @@map("gastos")
+}
+
+model DefinicionBono {
+  id             String        @id @default(uuid()) @db.Uuid
+  nombre         String        @db.VarChar(100)
+  descripcion    String?
+  horas_totales  Decimal       @db.Decimal(5, 2)
+  precio_total   Decimal       @db.Decimal(12, 2)
+  activo         Boolean       @default(true)
+  creado_en      DateTime      @default(now())
+  actualizado_en DateTime      @default(now())
+  bonoClientes   BonoCliente[]
+
+  @@map("definicion_bonos")
+}
+
+model BonoCliente {
+  id                 String             @id @default(uuid()) @db.Uuid
+  id_cliente         String             @db.Uuid
+  id_definicion_bono String             @db.Uuid
+  id_proyecto        String?            @db.Uuid
+  horas_contratadas  Decimal            @db.Decimal(5, 2)
+  horas_consumidas   Decimal            @db.Decimal(5, 2)
+  fecha_compra       DateTime           @db.Date
+  fecha_vencimiento  DateTime?          @db.Date
+  estado             String             @default("activo") @db.VarChar(20)
+  notas              String?
+  creado_en          DateTime           @default(now())
+  actualizado_en     DateTime           @default(now())
+  creado_por         String?            @db.Uuid
+  actualizado_por    String?            @db.Uuid
+  cliente            Cliente            @relation(fields: [id_cliente], references: [id])
+  definicionBono     DefinicionBono     @relation(fields: [id_definicion_bono], references: [id])
+  proyecto           Proyecto?          @relation(fields: [id_proyecto], references: [id])
+  consumoBonos       ConsumoBono[]
+  facturaLineas      FacturaLinea[]
+  presupuestoLineas  PresupuestoLinea[]
+
+  @@map("bonos_cliente")
+}
+
+model ConsumoBono {
+  id               String      @id @default(uuid()) @db.Uuid
+  id_bono_cliente  String      @db.Uuid
+  fecha            DateTime    @default(now())
+  horas_consumidas Decimal     @db.Decimal(5, 2)
+  descripcion      String?
+  id_usuario       String?     @db.Uuid
+  id_proyecto      String?     @db.Uuid
+  id_tarea         String?     @db.Uuid
+  bonoCliente      BonoCliente @relation(fields: [id_bono_cliente], references: [id], onDelete: Cascade)
+  proyecto         Proyecto?   @relation(fields: [id_proyecto], references: [id])
+  tarea            Tarea?      @relation(fields: [id_tarea], references: [id])
+  usuario          Usuario?    @relation(fields: [id_usuario], references: [id])
+
+  @@map("consumo_bonos")
+}
+
+model MensualidadCliente {
+  id                String             @id @default(uuid()) @db.Uuid
+  id_cliente        String             @db.Uuid
+  id_proyecto       String?            @db.Uuid
+  nombre            String             @db.VarChar(100)
+  descripcion       String?
+  importe_mensual   Decimal            @db.Decimal(12, 2)
+  dia_cobro         Int
+  fecha_inicio      DateTime           @db.Date
+  fecha_fin         DateTime?          @db.Date
+  activo            Boolean            @default(true)
+  notas             String?
+  creado_en         DateTime           @default(now())
+  actualizado_en    DateTime           @default(now())
+  creado_por        String?            @db.Uuid
+  actualizado_por   String?            @db.Uuid
+  facturaLineas     FacturaLinea[]
+  cliente           Cliente            @relation(fields: [id_cliente], references: [id])
+  proyecto          Proyecto?          @relation(fields: [id_proyecto], references: [id])
+  presupuestoLineas PresupuestoLinea[]
+
+  @@map("mensualidades_cliente")
+}
+
+model EstadoPresupuesto {
+  id           String        @id @default(uuid()) @db.Uuid
+  codigo       String        @unique @db.VarChar(50)
+  nombre       String        @db.VarChar(100)
+  descripcion  String?
+  presupuestos Presupuesto[]
+
+  @@map("estados_presupuesto")
+}
+
+model EstadoFactura {
+  id          String    @id @default(uuid()) @db.Uuid
+  codigo      String    @unique @db.VarChar(50)
+  nombre      String    @db.VarChar(100)
+  descripcion String?
+  facturas    Factura[]
+
+  @@map("estados_factura")
+}
+
+model FormaPago {
+  id            String        @id @default(uuid()) @db.Uuid
+  codigo        String        @unique @db.VarChar(50)
+  nombre        String        @db.VarChar(100)
+  descripcion   String?
+  numero_cuotas Int           @default(1)
+  facturas      Factura[]
+  presupuestos  Presupuesto[]
+
+  @@map("formas_pago")
+}
+
+model Presupuesto {
+  id                    String             @id @default(uuid()) @db.Uuid
+  numero                String             @unique @db.VarChar(50)
+  id_cliente            String             @db.Uuid
+  id_proyecto           String?            @db.Uuid
+  fecha_emision         DateTime           @db.Date
+  validez_hasta         DateTime?          @db.Date
+  id_estado_presupuesto String             @db.Uuid
+  id_forma_pago         String?            @db.Uuid
+  total_base            Decimal            @default(0) @db.Decimal(12, 2)
+  total_impuestos       Decimal            @default(0) @db.Decimal(12, 2)
+  total                 Decimal            @default(0) @db.Decimal(12, 2)
+  notas_cliente         String?
+  notas_internas        String?
+  creado_en             DateTime           @default(now())
+  actualizado_en        DateTime           @default(now())
+  creado_por            String?            @db.Uuid
+  actualizado_por       String?            @db.Uuid
+  facturas              Factura[]
+  presupuestoLineas     PresupuestoLinea[]
+  cliente               Cliente            @relation(fields: [id_cliente], references: [id])
+  estado                EstadoPresupuesto  @relation(fields: [id_estado_presupuesto], references: [id])
+  formaPago             FormaPago?         @relation(fields: [id_forma_pago], references: [id])
+  proyecto              Proyecto?          @relation(fields: [id_proyecto], references: [id])
+
+  @@map("presupuestos")
+}
+
+model PresupuestoLinea {
+  id                     String              @id @default(uuid()) @db.Uuid
+  id_presupuesto         String              @db.Uuid
+  tipo_concepto          String              @db.VarChar(50)
+  descripcion            String
+  cantidad               Decimal             @default(1) @db.Decimal(10, 2)
+  precio_unitario        Decimal             @db.Decimal(12, 2)
+  porcentaje_descuento   Decimal             @default(0) @db.Decimal(5, 2)
+  importe_total          Decimal             @db.Decimal(12, 2)
+  id_proyecto            String?             @db.Uuid
+  id_bono_cliente        String?             @db.Uuid
+  id_mensualidad_cliente String?             @db.Uuid
+  bonoCliente            BonoCliente?        @relation(fields: [id_bono_cliente], references: [id])
+  mensualidad            MensualidadCliente? @relation(fields: [id_mensualidad_cliente], references: [id])
+  presupuesto            Presupuesto         @relation(fields: [id_presupuesto], references: [id], onDelete: Cascade)
+  proyecto               Proyecto?           @relation(fields: [id_proyecto], references: [id])
+
+  @@map("presupuesto_lineas")
+}
+
+model Factura {
+  id                String         @id @default(uuid()) @db.Uuid
+  numero            String         @unique @db.VarChar(50)
+  id_cliente        String         @db.Uuid
+  id_proyecto       String?        @db.Uuid
+  fecha_emision     DateTime       @db.Date
+  fecha_vencimiento DateTime?      @db.Date
+  id_estado_factura String         @db.Uuid
+  id_forma_pago     String?        @db.Uuid
+  id_presupuesto    String?        @db.Uuid
+  total_base        Decimal        @default(0) @db.Decimal(12, 2)
+  total_impuestos   Decimal        @default(0) @db.Decimal(12, 2)
+  total             Decimal        @default(0) @db.Decimal(12, 2)
+  notas_cliente     String?
+  notas_internas    String?
+  creado_en         DateTime       @default(now())
+  actualizado_en    DateTime       @default(now())
+  creado_por        String?        @db.Uuid
+  actualizado_por   String?        @db.Uuid
+  facturaLineas     FacturaLinea[]
+  cliente           Cliente        @relation(fields: [id_cliente], references: [id])
+  estado            EstadoFactura  @relation(fields: [id_estado_factura], references: [id])
+  formaPago         FormaPago?     @relation(fields: [id_forma_pago], references: [id])
+  presupuesto       Presupuesto?   @relation(fields: [id_presupuesto], references: [id])
+  proyecto          Proyecto?      @relation(fields: [id_proyecto], references: [id])
+  pagos             Pago[]
+
+  @@map("facturas")
+}
+
+model FacturaLinea {
+  id                     String              @id @default(uuid()) @db.Uuid
+  id_factura             String              @db.Uuid
+  tipo_concepto          String              @db.VarChar(50)
+  descripcion            String
+  cantidad               Decimal             @default(1) @db.Decimal(10, 2)
+  precio_unitario        Decimal             @db.Decimal(12, 2)
+  porcentaje_descuento   Decimal             @default(0) @db.Decimal(5, 2)
+  importe_total          Decimal             @db.Decimal(12, 2)
+  id_proyecto            String?             @db.Uuid
+  id_bono_cliente        String?             @db.Uuid
+  id_mensualidad_cliente String?             @db.Uuid
+  bonoCliente            BonoCliente?        @relation(fields: [id_bono_cliente], references: [id])
+  factura                Factura             @relation(fields: [id_factura], references: [id], onDelete: Cascade)
+  mensualidad            MensualidadCliente? @relation(fields: [id_mensualidad_cliente], references: [id])
+  proyecto               Proyecto?           @relation(fields: [id_proyecto], references: [id])
+
+  @@map("factura_lineas")
+}
+
+model Pago {
+  id                 String   @id @default(uuid()) @db.Uuid
+  id_factura         String   @db.Uuid
+  fecha_pago         DateTime @db.Date
+  importe            Decimal  @db.Decimal(12, 2)
+  metodo             String?  @db.VarChar(50)
+  referencia_externa String?  @db.VarChar(100)
+  notas              String?
+  creado_en          DateTime @default(now())
+  creado_por         String?  @db.Uuid
+  factura            Factura  @relation(fields: [id_factura], references: [id], onDelete: Cascade)
+
+  @@map("pagos")
 }
