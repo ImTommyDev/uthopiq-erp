@@ -1,6 +1,12 @@
+// app/layout.tsx
 import "./globals.css";
 import type { ReactNode } from "react";
+import { Inter } from "next/font/google";
 import { QueryProvider } from "./query-client-provider";
+
+const inter = Inter({
+  subsets: ["latin"],
+});
 
 export const metadata = {
   title: "Uthopiq ERP",
@@ -10,7 +16,9 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="es">
-      <body className="min-h-screen bg-[var(--bg-dark)] text-[var(--text-dark)] antialiased">
+      <body
+        className={`${inter.className} min-h-screen bg-[var(--bg-body)] text-[var(--text-main)] antialiased`}
+      >
         <QueryProvider>{children}</QueryProvider>
       </body>
     </html>

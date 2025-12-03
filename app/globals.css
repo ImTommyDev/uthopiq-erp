@@ -1,18 +1,31 @@
+/* app/globals.css */
+
 :root {
-  --bg-dark: #020109;
-  --bg-elevated: #050515;
-  --text-dark: #f9fafb;
+  --bg-body: #020617;
+  --bg-elevated: #020617;
+  --bg-card: #020617;
+  --border-subtle: rgba(148, 163, 184, 0.25);
+
+  --primary: #38bdf8;
+  --primary-soft: rgba(56, 189, 248, 0.15);
+  --primary-strong: #0ea5e9;
+
+  --text-main: #e5e7eb;
+  --text-muted: #9ca3af;
+
+  --radius-lg: 1.25rem;
 }
 
+/* base */
 html,
 body {
   min-height: 100%;
 }
 
 body {
-  background: var(--bg-dark);
-  color: var(--text-dark);
+  background: var(--bg-body);
+  color: var(--text-main);
 }
 
-/* SOLO ESTO para Tailwind 4 */
+/* Tailwind 4 */
 @import "tailwindcss";
