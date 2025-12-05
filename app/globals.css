@@ -1,31 +1,104 @@
-/* app/globals.css */
-
 :root {
-  --bg-body: #020617;
-  --bg-elevated: #020617;
-  --bg-card: #020617;
-  --border-subtle: rgba(148, 163, 184, 0.25);
+  /* Colores */
+  --rojo-primario: #ff4b4b;
+  --negro: #252423;
+  --blanco: #ffffff;
+  --gris-claro: #6e6b6c;
+  --gris-oscuro: #2f2e2d;
 
-  --primary: #38bdf8;
-  --primary-soft: rgba(56, 189, 248, 0.15);
-  --primary-strong: #0ea5e9;
-
-  --text-main: #e5e7eb;
-  --text-muted: #9ca3af;
-
-  --radius-lg: 1.25rem;
+  /* Tipografías */
+  --font-h2: "RussoOne-regular";
+  --font-p: "Inter-regular";
 }
 
-/* base */
+/* Fuentes */
+@font-face {
+  font-family: "Inter-regular";
+  src: url("/fonts/Inter/Inter_18pt-Regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: "RussoOne-regular";
+  src: url("/fonts/RussoOne/RussoOne-Regular.ttf") format("truetype");
+}
+
+/* Reset sencillo */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* 🌌 FONDO ESTRELLADO GLOBAL */
 html,
 body {
-  min-height: 100%;
+  min-height: 100vh;
 }
 
 body {
-  background: var(--bg-body);
-  color: var(--text-main);
+  position: relative;
+  font-family: var(--font-p), system-ui, sans-serif;
+  background: radial-gradient(ellipse at bottom, #000 0%, #05050a 70%);
+  color: var(--blanco);
+  overflow-x: hidden;
 }
 
-/* Tailwind 4 */
-@import "tailwindcss";
+/* Capa de estrellas */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+
+  background:
+    radial-gradient(1px 1px at 5% 10%, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.85), transparent),
+    radial-gradient(1px 1px at 30% 15%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 45% 12%, rgba(255,255,255,0.85), transparent),
+    radial-gradient(1px 1px at 70% 20%, rgba(255,255,255,0.75), transparent),
+    radial-gradient(1px 1px at 90% 18%, rgba(255,255,255,0.85), transparent),
+    radial-gradient(1px 1px at 8% 40%, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 25% 45%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 40% 35%, rgba(255,255,255,0.85), transparent),
+    radial-gradient(1px 1px at 60% 42%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 75% 48%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 95% 38%, rgba(255,255,255,0.85), transparent),
+    radial-gradient(1px 1px at 12% 65%, rgba(255,255,255,0.85), transparent),
+    radial-gradient(1px 1px at 28% 70%, rgba(255,255,255,0.9), transparent),
+    radial-gradient(1px 1px at 50% 68%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 67% 72%, rgba(255,255,255,0.85), transparent),
+    radial-gradient(1px 1px at 80% 60%, rgba(255,255,255,0.75), transparent),
+    radial-gradient(1px 1px at 92% 70%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 10% 85%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 20% 90%, rgba(255,255,255,0.85), transparent),
+    radial-gradient(1px 1px at 35% 88%, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 55% 92%, rgba(255,255,255,0.85), transparent),
+    radial-gradient(1px 1px at 70% 87%, rgba(255,255,255,0.75), transparent),
+    radial-gradient(1px 1px at 88% 93%, rgba(255,255,255,0.8), transparent);
+
+  opacity: 0.75;
+  animation: twinkle 10s infinite alternate ease-in-out;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.4; }
+  50% { opacity: 0.9; }
+  100% { opacity: 0.5; }
+}
+
+/* Scrollbar oscura */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #121111;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gris-oscuro);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gris-claro);
+}
